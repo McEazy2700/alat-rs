@@ -34,8 +34,12 @@ schemas the rendered "Try it" console shows. I pulled all of this from both port
 | **Total** | | **55** | **342** |
 
 Artifacts produced by this audit:
-- **`MY_API_MAP.md`** — independent ground-truth map with full request/response schemas for all 342 ops.
+- **[`MY_API_MAP.md`](./MY_API_MAP.md)** — independent ground-truth map with full request/response schemas for all 342 ops (committed to this repo).
 - Raw extraction JSON (`playground.json`, `apim.json`) was generated under `/tmp/wema_extract/`.
+
+> `api_map.md` (referenced throughout this report) is the **original Wema-published map** that was
+> supplied as the audit *input*. It is intentionally **not tracked** in this repo; its corrected,
+> schema-complete successor is [`MY_API_MAP.md`](./MY_API_MAP.md).
 
 > Note: `api-version=2022-04-01-preview` is the only version the portal accepts; the gateway that
 > actually serves traffic is `wema-alatdev-apimgt.azure-api.net` (the portal host is the
@@ -85,7 +89,7 @@ and casing — `api_map.md` contains **no hallucinations and no omissions**.
 
 ## 2. Independent API map
 
-See **`MY_API_MAP.md`** (generated, ~11k lines). For every operation it records: full path, HTTP
+See **[`MY_API_MAP.md`](./MY_API_MAP.md)** (generated, ~11k lines). For every operation it records: full path, HTTP
 method, operation name, path params, query params, required headers, and request + response example
 bodies with their server-side `typeName`. This is the artifact the SDK should be implemented against.
 

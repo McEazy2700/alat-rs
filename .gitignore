@@ -5,6 +5,6 @@
 .env.*
 !.env.example
 
-# API maps — kept local (generated ground truth + original source map)
-MY_API_MAP.md
+# Original Wema-published source map (input to the audit) — kept local;
+# its corrected, schema-complete successor MY_API_MAP.md is committed.
 api_map.md
