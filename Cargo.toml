@@ -1,9 +1,13 @@
 [package]
 name = "alat-rs"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "Unofficial, type-safe, async Rust client for the ALAT by Wema banking APIs"
 license = "MIT"
+readme = "README.md"
+repository = "https://github.com/McEazy2700/alat-rs"
+homepage = "https://github.com/McEazy2700/alat-rs"
+documentation = "https://docs.rs/alat-rs"
 keywords = ["alat", "wema", "banking", "fintech", "nigeria"]
 categories = ["api-bindings"]
 
