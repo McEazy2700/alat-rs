@@ -1,0 +1,10 @@
+/target
+
+# Secrets — never commit subscription keys / channel credentials
+.env
+.env.*
+!.env.example
+
+# API maps — kept local (generated ground truth + original source map)
+MY_API_MAP.md
+api_map.md
