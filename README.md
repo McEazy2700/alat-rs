@@ -12,7 +12,9 @@ that into:
 - a complete, schema-level **API map** ([`MY_API_MAP.md`](./MY_API_MAP.md)) covering **all 55 API
   groups / 342 endpoints** across both portals;
 - this README, a **plain-English guide** to how the API is structured, **which keys you need, where to
-  get them, and which product to subscribe to for which endpoint**.
+  get them, and which product to subscribe to for which endpoint**;
+- [`WEMA_API_ONBOARDING.md`](./WEMA_API_ONBOARDING.md), a guide to **getting credentialed by Wema and
+  going to production** (how to obtain the `x-api-key` and other bank-issued credentials).
 
 > Everything here was derived directly from the live ALAT APIM developer portals. This project is
 > **not affiliated with or endorsed by Wema Bank**.
@@ -123,11 +125,18 @@ Repeat per product/portal you need (Section 9 lists what this SDK uses).
 
 ### B. Wema-issued: channel API key, access key, transfer salt
 
-These identify and secure *your* integration and are **not** available from the portal UI. Request them
-from Wema's developer/partner team — the portal's published contact is **help@alat.ng**, and there's a
-**Contact/Support** link once you're signed in. Tell them which products you've subscribed to and that
-you need sandbox **channel credentials** (`x-api-key`, the bills/airtime `access` key, and the
-funds-transfer **salt**).
+The `x-api-key`, channel ID, `access` header, and funds-transfer `salt` identify *your* integration and
+are **not** generated in the portal — Wema issues them during merchant onboarding (*"This value would be
+provided by the bank."*). To request them:
+
+1. Use the **"Go Live"** button on a product page → it opens Wema's **ALAT Open API Portal**
+   (`https://openapidelegation.azurewebsites.net`); register/log in to apply for credentials.
+2. And/or **contact your bank liaison** (`help@alat.ng`, or the Contact link once signed in) — endpoint
+   pages say *"Merchants are expected to be onboarded before they are able to make valid calls."*
+
+**See [`WEMA_API_ONBOARDING.md`](./WEMA_API_ONBOARDING.md) for the full onboarding & production guide**
+— the credential map, the two-stage go-live flow, what to request per product, and the (undocumented)
+questions to put to Wema.
 
 > **Sandbox conveniences** (per Wema's docs): the development OTP is **`123456`**, and onboarding/
 > payment flows return a **"Pending"** status immediately, with the final result delivered to your
@@ -560,6 +569,8 @@ Every call returns `Result<T, alat::Error>`:
 - **[`MY_API_MAP.md`](./MY_API_MAP.md)** — every one of the 342 endpoints across both portals, with
   path, method, params, required headers, and **request/response example schemas**, extracted directly
   from the live ALAT developer portals.
+- **[`WEMA_API_ONBOARDING.md`](./WEMA_API_ONBOARDING.md)** — how to get credentialed by Wema and go to
+  production: the self-serve vs. bank-issued credential map, the "Go Live" flow, and what to ask Wema.
 
 ## License
 

@@ -29,6 +29,10 @@
 //! an **API key** (`x-api-key`). Bills/airtime additionally require an **access
 //! key** (`access` header). Configure these on [`Config`].
 //!
+//! Only the subscription key is self-serve; the `x-api-key` and other channel
+//! credentials are **issued by Wema during merchant onboarding**. See
+//! `WEMA_API_ONBOARDING.md` in the repository for how to obtain them and go live.
+//!
 //! ## Gateways: one client per gateway
 //!
 //! The reference endpoints span two sandboxes with different hosts and keys:
