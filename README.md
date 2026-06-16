@@ -14,9 +14,8 @@ that into:
 - this README, a **plain-English guide** to how the API is structured, **which keys you need, where to
   get them, and which product to subscribe to for which endpoint**.
 
-> Everything here was derived directly from the live ALAT APIM developer portals (see
-> [`AUDIT_FINDINGS.md`](./AUDIT_FINDINGS.md) for the methodology and an audit of Wema's published
-> `api_map.md`). This project is **not affiliated with or endorsed by Wema Bank**.
+> Everything here was derived directly from the live ALAT APIM developer portals. This project is
+> **not affiliated with or endorsed by Wema Bank**.
 
 ---
 
@@ -32,7 +31,7 @@ that into:
 8. [Using this SDK](#8-using-this-sdk)
 9. [What this SDK covers](#9-what-this-sdk-covers)
 10. [Error handling](#10-error-handling)
-11. [Full schema reference & audit](#11-full-schema-reference--audit)
+11. [Full schema reference](#11-full-schema-reference)
 
 ---
 
@@ -555,12 +554,11 @@ Every call returns `Result<T, alat::Error>`:
 
 ---
 
-## 11. Full schema reference & audit
+## 11. Full schema reference
 
 - **[`MY_API_MAP.md`](./MY_API_MAP.md)** — every one of the 342 endpoints across both portals, with
-  path, method, params, required headers, and **request/response example schemas**.
-- **[`AUDIT_FINDINGS.md`](./AUDIT_FINDINGS.md)** — how the ground truth was extracted, an audit of
-  Wema's published `api_map.md`, and the findings that drove this SDK's design.
+  path, method, params, required headers, and **request/response example schemas**, extracted directly
+  from the live ALAT developer portals.
 
 ## License
 

@@ -2,7 +2,7 @@
 
 > Generated directly from the Azure APIM developer-portal management API (`/developer/apis?api-version=2022-04-01-preview`) of both portals on 2026-06-15.
 > This is the data behind the JS-rendered docs — paths, methods, **and** request/response
-> example schemas. Use it as the source of truth for the SDK audit.
+> example schemas. It is the source of truth the SDK's types are modeled against.
 
 Portals:
 - **Playground** — `https://playground.alat.ng` (gateway path-prefixed under this host)
