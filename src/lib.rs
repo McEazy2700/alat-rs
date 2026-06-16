@@ -55,6 +55,30 @@
 //! }
 //! ```
 //!
+//! ## Building a collections → payout → refund system
+//!
+//! A common use case is a service with one **central account** that customers pay
+//! into, from which you disburse to arbitrary banks and issue (partial) refunds.
+//! The pieces map onto these modules:
+//!
+//! - **Collect with attribution** — [`modules::virtual_account`]: register a prefix
+//!   pointing at your central account, mint a virtual account per payment/user, and
+//!   handle the credit notifications. Money lands in your central account.
+//! - **Disburse / refund** — [`modules::transfer`]: `verify_account` then
+//!   `transfer_funds` (HMAC-signed) debiting your central account to any bank. A
+//!   refund is just a payout back to the payer (whose account/bank arrives in the
+//!   virtual-account credit notification); size it with the fee bands from
+//!   [`AccountNameEnquiry::charge_for`](modules::transfer::AccountNameEnquiry::charge_for)
+//!   or [`get_nip_charges`](Client::get_nip_charges).
+//! - **Reconcile** — [`modules::account`] / [`modules::statement`] for balances and
+//!   history; [`query_transactions`](Client::query_transactions) for settled inflows.
+//! - **Receive async results** — [`modules::webhook`]: the generic callback Wema
+//!   posts for payment/onboarding outcomes (virtual accounts have their own
+//!   notify/name-enquiry webhooks in [`modules::virtual_account`]).
+//!
+//! Virtual accounts are **collection-only** — they cannot be debited; payouts and
+//! refunds always come from the real central (settlement) account.
+//!
 //! ## Error model
 //!
 //! Calls return [`Result<T>`]. Failures are one of: [`Error::Network`]

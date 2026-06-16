@@ -511,11 +511,23 @@ subscription key) and a gateway:
 | `statement` — `initiate_statement`, `get_statement_transactions` | `/get-statement-service` | **Get Statement Service** | Playground |
 | `bills` — `get_all_bills`, `validate_customer`, `pay_bill`, `check_bill_transaction_status` | `/bills-payment` | **Wallet Services** | Playground |
 | `bills` (airtime) — `get_data_plans`, `purchase_airtime`, `purchase_data` | `/airtime-data` | **Wallet Services** | Playground |
-| `transfer` — `get_bank_list`, `verify_account`, `transfer_funds` | `/funds-transfer-open` | **Open Banking APIs** | APIM Dev |
+| `transfer` — `get_bank_list`, `verify_account`, `transfer_funds`, `get_nip_charges` | `/funds-transfer-open`, `/debit-wallet` (charges) | **Open Banking APIs** / **Wallet Services** | APIM Dev / Playground |
+| `virtual_account` — `create_prefix`, `modify_prefix`, `list_prefixes`, `get_prefix`, `query_transactions` (+ webhook models) | `/VirtualAccount` | **Virtual Account** 🔒 | APIM Dev |
+| `webhook` — generic callback types (`Callback`, `RequestType`, `NubanData`, …) | — (you host the endpoint) | — | — |
 
 So a full local test uses **three subscription keys**: *Wallet Services* + *Get Statement Service*
-(Playground) and *Open Banking APIs* (APIM Dev). Everything else in Section 5 is documented in
+(Playground) and *Open Banking APIs* (APIM Dev); collections additionally need the 🔒 approval-gated
+*Virtual Account* product (APIM Dev). Everything else in Section 5 is documented in
 [`MY_API_MAP.md`](./MY_API_MAP.md) and is straightforward to add following the same patterns.
+
+### Building a collections → payout → refund system
+
+`virtual_account` + `transfer` + `webhook` compose into the common aggregator flow: register a prefix
+pointing at your central settlement account, mint a virtual account per payment, receive credits via
+your `TransNotify` webhook, then disburse/refund from the central account with `transfer_funds`
+(size refunds with `AccountNameEnquiry::charge_for` / `get_nip_charges`). Virtual accounts are
+**collection-only** — payouts always debit the real central account. See the crate docs for the full
+walkthrough.
 
 ### Running the tests
 

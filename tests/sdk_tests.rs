@@ -176,6 +176,95 @@ fn payment_result_handles_missing_optional_fields() {
 }
 
 // ---------------------------------------------------------------------------
+// Virtual accounts (collections) + webhooks.
+// ---------------------------------------------------------------------------
+
+#[test]
+fn compose_virtual_account_number_concatenates() {
+    use alat::modules::virtual_account::compose_virtual_account_number;
+    assert_eq!(compose_virtual_account_number("9988", "000042"), "9988000042");
+}
+
+#[test]
+fn trans_notify_webhook_decodes_with_attribution_fields() {
+    use alat::modules::virtual_account::TransNotifyRequest;
+    // The credit notification Wema POSTs to your webhook (lowercase wire keys).
+    let body = r#"{"originatoraccountnumber":"0011223344","amount":"5000.00","currency":"NGN",
+        "originatorname":"JOHN PAYER","narration":"order#123","craccountname":"ACME LTD",
+        "paymentreference":"pref","reference":"ref","bankname":"GTBank","sessionid":"SESS-1",
+        "craccount":"9988000042","bankcode":"058","created_at":"2026-06-16T10:00:00Z"}"#;
+    let n: TransNotifyRequest = serde_json::from_str(body).unwrap();
+    assert_eq!(n.cr_account, "9988000042"); // which virtual account (attribution)
+    assert_eq!(n.originator_account_number, "0011223344"); // payer (for refunds)
+    assert_eq!(n.bank_code, "058");
+    assert_eq!(n.session_id, "SESS-1"); // idempotency key
+}
+
+#[test]
+fn prefix_setup_round_trips() {
+    use alat::modules::virtual_account::PrefixSetup;
+    let setup = PrefixSetup {
+        user_name: "ACME".into(), prefix: "9988".into(), currency: "NGN".into(),
+        base_url: "https://acme.example".into(), name_enquiry_uri: "/nip".into(),
+        trans_notify_uri: "/notify".into(), auth_type: "Bearer".into(), auth_key: "k".into(),
+        settle_account: "0123456789".into(), is_active: true,
+    };
+    let json = serde_json::to_value(&setup).unwrap();
+    assert_eq!(json["settleAccount"], "0123456789");
+    assert_eq!(json["nameEnquiryUri"], "/nip");
+    let back: PrefixSetup = serde_json::from_value(json).unwrap();
+    assert_eq!(back.prefix, "9988");
+}
+
+#[test]
+fn generic_callback_decodes_pascalcase_and_extracts_nuban() {
+    use alat::modules::webhook::{Callback, NubanData, NubanType, RequestType};
+    // PascalCase variant with the NUBAN data model (RequestType 1 = WalletCreation).
+    let body = r#"{"Title":"Wallet","Message":"created","Request":1,
+        "Data":{"CustomerID":"C1","NUBANName":"ACME","NUBAN":"0123456789",
+        "NUBANStatus":"Active","NUBANType":2,"Email":"a@b.com"}}"#;
+    let cb: Callback = serde_json::from_str(body).unwrap();
+    assert_eq!(cb.request_type, RequestType::WalletCreation);
+    let nuban: NubanData = cb.data_as().unwrap();
+    assert_eq!(nuban.nuban.as_deref(), Some("0123456789"));
+    assert_eq!(nuban.nuban_type, Some(NubanType::Wallet));
+}
+
+#[test]
+fn generic_callback_accepts_camelcase_and_unknown_request_type() {
+    use alat::modules::webhook::{Callback, RequestType};
+    let body = r#"{"title":"x","message":"y","requestType":99,"data":{}}"#;
+    let cb: Callback = serde_json::from_str(body).unwrap();
+    assert_eq!(cb.request_type, RequestType::Other(99)); // forward-compatible
+}
+
+// ---------------------------------------------------------------------------
+// NIP charges (fees) + refund math.
+// ---------------------------------------------------------------------------
+
+#[test]
+fn nip_charges_decode_and_band_lookup() {
+    use alat::modules::transfer::NipCharges;
+    let charges = NipCharges {
+        charge_fees: serde_json::from_str(
+            r#"[{"id":1,"chargeFeeName":"low","transactionType":0,"charge":10.0,"lower":0.0,"upper":5000.0},
+                {"id":2,"chargeFeeName":"mid","transactionType":0,"charge":25.0,"lower":5000.01,"upper":50000.0}]"#,
+        ).unwrap(),
+        terms_and_conditions: None,
+        terms_and_conditions_url: None,
+    };
+    assert_eq!(charges.charge_for(3000.0).unwrap().charge, 10.0);
+    assert_eq!(charges.charge_for(20000.0).unwrap().charge, 25.0);
+    assert!(charges.charge_for(999999.0).is_none());
+
+    // Refund math: refund = paid - service_charge - transfer_fee.
+    let paid = 20000.0;
+    let fee = charges.charge_for(paid).unwrap().charge; // 25.0
+    let service_charge = 100.0;
+    assert_eq!(paid - service_charge - fee, 19875.0);
+}
+
+// ---------------------------------------------------------------------------
 // HMAC signing.
 // ---------------------------------------------------------------------------
 

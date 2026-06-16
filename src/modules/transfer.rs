@@ -87,6 +87,21 @@ pub struct ChargeFee {
     pub upper: f64,
 }
 
+impl ChargeFee {
+    /// Whether `amount` falls within this band's `[lower, upper]` range (inclusive).
+    pub fn applies_to(&self, amount: f64) -> bool {
+        amount >= self.lower && amount <= self.upper
+    }
+}
+
+/// Returns the fee band that applies to `amount`, if any.
+///
+/// Useful for refund math: deduct the applicable [`ChargeFee::charge`] (plus your
+/// own service charge) from the original amount before paying the customer back.
+pub fn charge_for(bands: &[ChargeFee], amount: f64) -> Option<&ChargeFee> {
+    bands.iter().find(|b| b.applies_to(amount))
+}
+
 /// The verified beneficiary returned by a name enquiry.
 ///
 /// This is the `result` of `AccountNameEnquiryEnvelope`.
@@ -108,6 +123,39 @@ pub struct AccountNameEnquiry {
     /// Applicable interbank fee bands.
     #[serde(default)]
     pub charge_fee: Vec<ChargeFee>,
+}
+
+impl AccountNameEnquiry {
+    /// The fee band that applies to `amount`, drawn from this enquiry's
+    /// [`charge_fee`](Self::charge_fee) bands — the in-product way to learn the
+    /// interbank charge on the funds-transfer flow without a separate call.
+    pub fn charge_for(&self, amount: f64) -> Option<&ChargeFee> {
+        charge_for(&self.charge_fee, amount)
+    }
+}
+
+/// The interbank charge schedule (server type: `NIPChargesEnvelope.result`).
+///
+/// Returned by [`get_nip_charges`](Client::get_nip_charges). On the funds-transfer
+/// flow you can instead read the bands directly off a name enquiry
+/// ([`AccountNameEnquiry::charge_for`]).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NipCharges {
+    /// Fee bands by amount range.
+    #[serde(default)]
+    pub charge_fees: Vec<ChargeFee>,
+    /// Terms-and-conditions text, where applicable.
+    pub terms_and_conditions: Option<String>,
+    /// URL to the terms and conditions, where applicable.
+    pub terms_and_conditions_url: Option<String>,
+}
+
+impl NipCharges {
+    /// The fee band that applies to `amount`.
+    pub fn charge_for(&self, amount: f64) -> Option<&ChargeFee> {
+        charge_for(&self.charge_fees, amount)
+    }
 }
 
 /// Request body for a transfer.
@@ -246,5 +294,21 @@ impl Client {
         )
         .await?
         .into_result()
+    }
+
+    /// Fetches the interbank (NIP) charge schedule.
+    ///
+    /// Served by the **Wallet Services** product's "Debit Wallet" group on the
+    /// Playground gateway (`/debit-wallet`) — i.e. call this with a client
+    /// configured for [`Config::playground`](crate::Config::playground) and a
+    /// Wallet Services subscription key, not the funds-transfer gateway. On the
+    /// funds-transfer flow itself, prefer reading the bands off a name enquiry via
+    /// [`AccountNameEnquiry::charge_for`].
+    ///
+    /// `GET /debit-wallet/api/Shared/GetNIPCharges`
+    pub async fn get_nip_charges(&self) -> Result<NipCharges> {
+        self.get_json::<Envelope<NipCharges>>("debit-wallet/api/Shared/GetNIPCharges", &[], &[])
+            .await?
+            .into_result()
     }
 }

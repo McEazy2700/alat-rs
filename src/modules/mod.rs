@@ -10,4 +10,6 @@ pub mod account;
 pub mod bills;
 pub mod statement;
 pub mod transfer;
+pub mod virtual_account;
 pub mod wallet;
+pub mod webhook;
