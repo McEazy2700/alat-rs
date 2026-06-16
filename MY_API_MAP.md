@@ -5,8 +5,8 @@
 > example schemas. It is the source of truth the SDK's types are modeled against.
 
 Portals:
-- **Playground** — `https://playground.alat.ng` (gateway path-prefixed under this host)
-- **APIM Dev** — `https://wema-alatdev-apimgt.developer.azure-api.net` (gateway: `https://wema-alatdev-apimgt.azure-api.net`)
+- **Playground** — portal `https://playground.alat.ng`; gateway `https://playground.azure-api.net` (calls go to the gateway)
+- **APIM Dev** — portal `https://wema-alatdev-apimgt.developer.azure-api.net`; gateway `https://wema-alatdev-apimgt.azure-api.net`
 
 
 ---

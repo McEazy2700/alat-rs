@@ -1,6 +1,6 @@
 [package]
 name = "alat-rs"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
 description = "Unofficial, type-safe, async Rust client for the ALAT by Wema banking APIs"
 license = "MIT"

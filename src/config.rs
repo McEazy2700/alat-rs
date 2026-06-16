@@ -11,10 +11,13 @@
 //! *separate* APIM instances with *separate* subscription keys and *different*
 //! sets of products:
 //!
-//! | Sandbox       | Gateway host                              | Hosts (among others)            |
-//! |---------------|-------------------------------------------|---------------------------------|
-//! | **Playground**| `https://playground.alat.ng`              | wallet creation, account, statement, bills, airtime |
-//! | **APIM Dev**  | `https://wema-alatdev-apimgt.azure-api.net` | funds transfer, name enquiry    |
+//! | Sandbox       | Sign-up portal                                    | API gateway (calls go here)                 |
+//! |---------------|---------------------------------------------------|---------------------------------------------|
+//! | **Playground**| `https://playground.alat.ng`                      | `https://playground.azure-api.net`          |
+//! | **APIM Dev**  | `https://wema-alatdev-apimgt.developer.azure-api.net` | `https://wema-alatdev-apimgt.azure-api.net` |
+//!
+//! > The portal host (where you sign up / read keys) is **not** the gateway host
+//! > (where API calls go). The named constructors below target the **gateway**.
 //!
 //! Because a [`Client`](crate::Client) is bound to exactly one gateway + key,
 //! exercising endpoints that live on *both* sandboxes requires two clients (see
@@ -50,8 +53,9 @@ pub const DEFAULT_TIMEOUT: Duration = Duration::from_secs(30);
 /// endpoints.
 #[derive(Debug, Clone)]
 pub struct Config {
-    /// Absolute base URL of the APIM gateway, e.g. `https://playground.alat.ng`.
-    /// Stored without a trailing slash.
+    /// Absolute base URL of the APIM **gateway** (where API calls go, not the
+    /// sign-up portal), e.g. `https://playground.azure-api.net`. Stored without a
+    /// trailing slash.
     pub base_url: String,
 
     /// APIM subscription key, sent as the `Ocp-Apim-Subscription-Key` header.
@@ -97,8 +101,8 @@ impl Config {
         }
     }
 
-    /// Configuration for the **Playground** sandbox
-    /// (`https://playground.alat.ng`).
+    /// Configuration for the **Playground** sandbox gateway
+    /// (`https://playground.azure-api.net`; sign up at `https://playground.alat.ng`).
     ///
     /// Use this for wallet creation, account maintenance, statements, bills, and
     /// airtime — the products published on that portal.
@@ -106,7 +110,7 @@ impl Config {
         subscription_key: impl Into<String>,
         api_key: impl Into<String>,
     ) -> Self {
-        Self::new("https://playground.alat.ng", subscription_key, api_key)
+        Self::new("https://playground.azure-api.net", subscription_key, api_key)
     }
 
     /// Configuration for the **APIM Dev** sandbox

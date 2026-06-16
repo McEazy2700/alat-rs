@@ -39,7 +39,8 @@ that into:
 
 ALAT runs on **Microsoft Azure API Management (APIM)**. Three concepts explain almost everything:
 
-- **Gateway** — a single host that receives every API call, e.g. `https://playground.alat.ng`.
+- **Gateway** — a single host that receives every API call, e.g. `https://playground.azure-api.net`.
+  ⚠️ This is **not** the sign-up portal host (`playground.alat.ng`) — calls to the portal host 404.
 - **API group** — a related set of endpoints mounted under a **path prefix**, e.g. the funds-transfer
   group lives under `/funds-transfer-open`. Every request is therefore
   `https://<gateway>/<path-prefix>/<operation>`.
@@ -48,8 +49,8 @@ ALAT runs on **Microsoft Azure API Management (APIM)**. Three concepts explain a
   nothing outside it). Products are the unit of access — not individual endpoints.
 
 ```
-https://playground.alat.ng / bills-payment / api/BillsPayment/GetAllBills
-└────── gateway ──────────┘ └─ path prefix ┘ └──────── operation ────────┘
+https://playground.azure-api.net / bills-payment / api/BillsPayment/GetAllBills
+└───────── gateway ────────────┘  └─ path prefix ┘ └──────── operation ────────┘
                               (an API group inside the "Wallet Services" product)
 ```
 
@@ -67,7 +68,7 @@ ALAT publishes **two independent APIM instances**. They have different gateways,
 | | **Playground** | **APIM Dev** |
 | :-- | :-- | :-- |
 | Sign-up / keys portal | `https://playground.alat.ng` | `https://wema-alatdev-apimgt.developer.azure-api.net` |
-| API gateway (calls go here) | `https://playground.alat.ng` | `https://wema-alatdev-apimgt.azure-api.net` |
+| API gateway (calls go here) | `https://playground.azure-api.net` | `https://wema-alatdev-apimgt.azure-api.net` |
 | Focus | partner wallet ecosystem | open-banking / merchant ecosystem |
 | Products | 10 | 22 |
 | `Config` constructor | `Config::playground(...)` | `Config::apim_dev(...)` |
@@ -143,7 +144,7 @@ response **schemas**, see [`MY_API_MAP.md`](./MY_API_MAP.md).
 ### Playground
 
 - **Developer portal (sign up / get keys):** `https://playground.alat.ng`
-- **API gateway (what the SDK calls):** `https://playground.alat.ng`
+- **API gateway (what the SDK calls):** `https://playground.azure-api.net`
 - **10 products · 20 distinct API groups · 82 endpoints** (some groups appear in more than one product)
 
 | Product (subscribe to this) | API groups it unlocks | Endpoints |

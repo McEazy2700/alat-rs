@@ -298,9 +298,17 @@ fn sibling_client_swaps_subscription_key_only() {
     assert_eq!(statements.subscription_key(), "GET_STATEMENT_KEY");
     // Channel key and gateway are unchanged on the sibling.
     assert_eq!(statements.config().api_key, "channel_api_key");
-    assert_eq!(statements.config().base_url, "https://playground.alat.ng");
+    assert_eq!(statements.config().base_url, "https://playground.azure-api.net");
     // An invalid swapped key is rejected, not silently accepted.
     assert!(wallet.with_subscription_key("bad\nkey").is_err());
+}
+
+#[test]
+fn sandbox_constructors_target_gateway_hosts_not_portals() {
+    // Regression: calls must go to the APIM *gateway*, never the sign-up portal
+    // (playground.alat.ng is the portal and 404s every API path).
+    assert_eq!(Config::playground("s", "a").base_url, "https://playground.azure-api.net");
+    assert_eq!(Config::apim_dev("s", "a").base_url, "https://wema-alatdev-apimgt.azure-api.net");
 }
 
 #[test]
